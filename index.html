@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes y Decodo — Navegación Web Sin Bloqueos para Agentes IA</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a0e1a;
+    --card:#0f172a;
+    --border:#1e3a5f;
+    --cyan:#00d4ff;
+    --green:#22c55e;
+    --amber:#f59e0b;
+    --red:#ef4444;
+    --purple:#a855f7;
+    --text:#dbe7f3;
+    --muted:#8aa6bf;
+  }
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    padding-top:66px;
+  }
+
+  /* ---------- PROGRESS BAR ---------- */
+  #progressBar{
+    position:fixed;top:0;left:0;width:100%;height:3px;
+    background:rgba(30,58,95,.55);z-index:300;
+  }
+  #progressFill{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,var(--cyan),var(--green),var(--amber),var(--purple));
+    transition:width .12s linear;
+    box-shadow:0 0 10px rgba(0,212,255,.7);
+  }
+
+  /* ---------- NAVBAR ---------- */
+  #navbar{
+    position:fixed;top:3px;left:0;width:100%;
+    background:rgba(10,14,26,.94);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--border);
+    z-index:250;
+  }
+  .nav-inner{
+    max-width:1180px;margin:0 auto;
+    display:flex;align-items:center;gap:14px;
+    padding:9px 14px;
+  }
+  .nav-brand{
+    font-size:12px;font-weight:800;letter-spacing:1.6px;
+    color:var(--cyan);white-space:nowrap;flex-shrink:0;
+    text-shadow:0 0 12px rgba(0,212,255,.5);
+  }
+  .nav-links{
+    display:flex;gap:6px;overflow-x:auto;flex:1;
+    scrollbar-width:none;-ms-overflow-style:none;
+    padding-bottom:2px;
+  }
+  .nav-links::-webkit-scrollbar{display:none}
+  .nav-btn{
+    font-family:inherit;
+    font-size:11.5px;font-weight:600;letter-spacing:.6px;
+    color:var(--muted);background:transparent;
+    border:1px solid transparent;border-radius:8px;
+    padding:7px 12px;white-space:nowrap;cursor:pointer;
+    transition:all .22s ease;
+  }
+  .nav-btn:hover{color:var(--text);background:rgba(30,58,95,.4)}
+  .nav-btn.active{
+    color:var(--cyan);
+    background:rgba(0,212,255,.12);
+    border-color:rgba(0,212,255,.45);
+    box-shadow:0 0 14px rgba(0,212,255,.22);
+  }
+  .nav-btn.credits-btn.active{
+    color:var(--purple);
+    background:rgba(168,85,247,.14);
+    border-color:rgba(168,85,247,.5);
+    box-shadow:0 0 14px rgba(168,85,247,.25);
+  }
+
+  /* ---------- LAYOUT ---------- */
+  .container{max-width:1120px;margin:0 auto;padding:0 16px}
+  .section{display:none;padding:26px 0 60px}
+  .section.active{display:block;animation:fade .45s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+  /* ---------- HERO SVG ---------- */
+  .svg-host{width:100%;margin-bottom:26px}
+  .svg-host svg{
+    width:100%;height:auto;display:block;
+    border-radius:14px;
+    border:1px solid var(--border);
+    box-shadow:0 0 40px rgba(0,212,255,.10),0 18px 50px rgba(0,0,0,.6);
+    overflow:hidden;
+    background:#070b14;
+  }
+
+  /* ---------- HOME ---------- */
+  .badge{
+    display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:1.8px;
+    color:var(--cyan);background:rgba(0,212,255,.09);
+    border:1px solid rgba(0,212,255,.35);
+    border-radius:999px;padding:6px 15px;margin-bottom:16px;
+  }
+  h1{
+    font-size:clamp(23px,4.4vw,40px);
+    line-height:1.18;font-weight:800;letter-spacing:-.5px;
+    background:linear-gradient(100deg,#e8f4ff 10%,var(--cyan) 45%,var(--purple) 90%);
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom:12px;
+  }
+  .subtitle{font-size:clamp(14px,2.2vw,18px);color:var(--green);font-weight:600;margin-bottom:14px}
+  .lede{font-size:15.5px;color:var(--muted);max-width:820px;margin-bottom:20px}
+  .quote{
+    border-left:4px solid var(--amber);
+    background:linear-gradient(90deg,rgba(245,158,11,.10),rgba(245,158,11,.01));
+    border-radius:0 10px 10px 0;
+    padding:16px 20px;margin:20px 0;
+    font-style:italic;font-size:15px;color:#f3dcb4;
+  }
+  .metrics{
+    display:grid;gap:12px;margin:24px 0;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  }
+  .metric{
+    background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:16px 14px;text-align:center;transition:.25s;
+  }
+  .metric:hover{border-color:var(--cyan);transform:translateY(-3px);box-shadow:0 0 22px rgba(0,212,255,.18)}
+  .metric .val{font-size:clamp(19px,3.4vw,26px);font-weight:800;color:var(--cyan);display:block;line-height:1.2}
+  .metric .lbl{font-size:11px;color:var(--muted);letter-spacing:.9px;text-transform:uppercase;margin-top:6px;display:block}
+  .metric.g .val{color:var(--green)}
+  .metric.a .val{color:var(--amber)}
+  .metric.p .val{color:var(--purple)}
+
+  .meta-row{
+    display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;
+  }
+  .chip{
+    font-size:11.5px;color:var(--muted);
+    background:rgba(30,58,95,.35);
+    border:1px solid var(--border);
+    border-radius:999px;padding:6px 14px;
+  }
+  .chip strong{color:var(--text)}
+
+  /* ---------- HEADINGS ---------- */
+  h2.sec-title{
+    font-size:clamp(20px,3.4vw,29px);
+    font-weight:800;letter-spacing:-.3px;
+    margin-bottom:8px;color:#eaf4ff;
+  }
+  h2.sec-title .num{
+    color:var(--cyan);font-size:.78em;margin-right:10px;
+    font-variant-numeric:tabular-nums;
+  }
+  .sec-sub{
+    color:var(--muted);font-size:14px;margin-bottom:26px;
+    padding-bottom:16px;border-bottom:1px solid var(--border);
+  }
+  h3{font-size:17px;font-weight:700;color:var(--cyan);margin:26px 0 12px;letter-spacing:.2px}
+  h4{font-size:14.5px;font-weight:700;color:#cfe4f5;margin:18px 0 8px}
+  p{margin-bottom:14px;font-size:15px;color:#c6d6e6}
+  strong{color:#ffffff;font-weight:700}
+
+  /* ---------- CARDS ---------- */
+  .card{
+    background:var(--card);border:1px solid var(--border);border-radius:12px;
+    padding:20px;margin-bottom:16px;transition:.25s;
+  }
+  .card:hover{border-color:rgba(0,212,255,.55);box-shadow:0 0 24px rgba(0,212,255,.09)}
+  .card h3{margin-top:0}
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));margin:18px 0}
+  .grid .card{margin-bottom:0}
+
+  .pillar{
+    position:relative;padding-left:56px;
+  }
+  .pillar .pnum{
+    position:absolute;left:18px;top:18px;
+    width:28px;height:28px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:800;
+    background:rgba(0,212,255,.12);color:var(--cyan);
+    border:1px solid rgba(0,212,255,.4);
+  }
+  .pillar.p2 .pnum{background:rgba(34,197,94,.12);color:var(--green);border-color:rgba(34,197,94,.4)}
+  .pillar.p3 .pnum{background:rgba(168,85,247,.12);color:var(--purple);border-color:rgba(168,85,247,.4)}
+
+  /* ---------- CALLOUTS ---------- */
+  .callout{
+    border-radius:10px;padding:14px 18px;margin:18px 0;
+    border-left:4px solid;font-size:14.5px;
+  }
+  .callout .ttl{
+    display:block;font-size:11px;font-weight:800;letter-spacing:1.4px;
+    text-transform:uppercase;margin-bottom:6px;
+  }
+  .callout p:last-child{margin-bottom:0}
+  .callout.info{background:rgba(0,212,255,.07);border-color:var(--cyan)}
+  .callout.info .ttl{color:var(--cyan)}
+  .callout.example{background:rgba(34,197,94,.07);border-color:var(--green)}
+  .callout.example .ttl{color:var(--green)}
+  .callout.warn{background:rgba(245,158,11,.08);border-color:var(--amber)}
+  .callout.warn .ttl{color:var(--amber)}
+  .callout.error{background:rgba(239,68,68,.08);border-color:var(--red)}
+  .callout.error .ttl{color:var(--red)}
+
+  /* ---------- TABLE ---------- */
+  .table-wrap{overflow-x:auto;margin:18px 0;border-radius:12px;border:1px solid var(--border);-webkit-overflow-scrolling:touch}
+  table{width:100%;border-collapse:collapse;min-width:560px;font-size:13.5px}
+  thead th{
+    background:#12203a;color:var(--cyan);
+    font-size:11px;letter-spacing:1.1px;text-transform:uppercase;
+    padding:13px 14px;text-align:left;font-weight:700;
+    border-bottom:1px solid var(--border);white-space:nowrap;
+  }
+  tbody td{padding:12px 14px;border-bottom:1px solid rgba(30,58,95,.6);color:#c6d6e6;vertical-align:top}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:nth-child(even){background:rgba(30,58,95,.16)}
+  tbody td:first-child{color:#e8f4ff;font-weight:600}
+  .td-good{color:var(--green)!important;font-weight:600}
+  .td-bad{color:var(--red)!important;font-weight:600}
+
+  /* ---------- STEPS ---------- */
+  .steps{counter-reset:st;margin:20px 0}
+  .step{
+    position:relative;padding:16px 18px 16px 62px;margin-bottom:12px;
+    background:var(--card);border:1px solid var(--border);border-radius:12px;
+    transition:.25s;
+  }
+  .step:hover{border-color:rgba(0,212,255,.5)}
+  .step::before{
+    counter-increment:st;content:counter(st);
+    position:absolute;left:16px;top:16px;
+    width:30px;height:30px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:14px;
+    background:rgba(0,212,255,.12);color:var(--cyan);
+    border:1px solid rgba(0,212,255,.4);
+  }
+  .step h4{margin:0 0 6px;color:#eaf4ff;font-size:15px}
+  .step p{margin:0;font-size:14px;color:var(--muted)}
+
+  /* ---------- TABS ---------- */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 16px}
+  .tab{
+    font-family:inherit;font-size:12.5px;font-weight:700;letter-spacing:.7px;
+    color:var(--muted);background:rgba(30,58,95,.3);
+    border:1px solid var(--border);border-radius:9px;
+    padding:9px 16px;cursor:pointer;transition:.22s;
+  }
+  .tab:hover{color:var(--text);border-color:rgba(0,212,255,.5)}
+  .tab.active{
+    color:var(--cyan);background:rgba(0,212,255,.13);
+    border-color:rgba(0,212,255,.55);box-shadow:0 0 16px rgba(0,212,255,.18);
+  }
+  .tab-panel{display:none;animation:fade .35s ease}
+  .tab-panel.active{display:block}
+
+  /* ---------- ACCORDION ---------- */
+  .acc{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:11px;margin-bottom:10px;overflow:hidden;transition:.25s;
+  }
+  .acc.open{border-color:rgba(0,212,255,.5);box-shadow:0 0 20px rgba(0,212,255,.08)}
+  .acc-head{
+    width:100%;font-family:inherit;text-align:left;
+    background:transparent;border:none;cursor:pointer;
+    color:#e2eefa;font-size:14.5px;font-weight:600;
+    padding:15px 46px 15px 18px;position:relative;
+  }
+  .acc-head .ico{
+    position:absolute;right:16px;top:50%;transform:translateY(-50%);
+    color:var(--cyan);font-size:19px;font-weight:400;
+    transition:transform .3s ease;line-height:1;
+  }
+  .acc.open .acc-head .ico{transform:translateY(-50%) rotate(45deg)}
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .35s ease}
+  .acc.open .acc-body{max-height:600px}
+  .acc-body p{padding:0 18px 16px;margin:0;font-size:14px;color:var(--muted)}
+
+  /* ---------- LISTS ---------- */
+  ul.list,ol.list{margin:12px 0 16px 22px}
+  ul.list li,ol.list li{margin-bottom:9px;font-size:14.5px;color:#c6d6e6}
+  ul.list li::marker{color:var(--cyan)}
+  ol.list li::marker{color:var(--cyan);font-weight:700}
+  .mini-list{margin:8px 0 0 20px}
+  .mini-list li{font-size:13.5px;color:var(--muted);margin-bottom:6px}
+
+  /* ---------- CODE / PROMPT ---------- */
+  .prompt-box{
+    background:#0b1322;border:1px solid rgba(0,212,255,.35);
+    border-left:4px solid var(--cyan);
+    border-radius:10px;padding:18px;margin:16px 0;
+    font-family:'Consolas','Menlo',monospace;
+    font-size:13.5px;color:#9fe8ff;line-height:1.7;
+    overflow-x:auto;
+  }
+  .prompt-box .k{color:var(--amber)}
+
+  /* ---------- LINKS ---------- */
+  a{color:var(--cyan);text-decoration:none;word-break:break-word;transition:.2s}
+  a:hover{color:#7fe9ff;text-decoration:underline}
+  .src-card{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:12px;padding:20px;margin-bottom:14px;
+    border-left:4px solid var(--purple);transition:.25s;
+  }
+  .src-card:hover{border-color:var(--purple);box-shadow:0 0 24px rgba(168,85,247,.14)}
+  .src-card .src-tag{
+    font-size:10px;font-weight:800;letter-spacing:1.6px;
+    color:var(--purple);text-transform:uppercase;display:block;margin-bottom:8px;
+  }
+  .src-card .src-name{font-size:15px;font-weight:700;color:#eaf4ff;margin-bottom:8px;display:block}
+  .src-card .src-url{font-size:12px;color:var(--muted);word-break:break-all}
+
+  /* ---------- CREDITS ---------- */
+  .credit-box{
+    background:var(--card);border:1px solid var(--border);
+    border-radius:14px;padding:26px;margin-top:22px;text-align:center;
+  }
+  .credit-box .cname{
+    font-size:clamp(19px,3.2vw,26px);font-weight:800;
+    background:linear-gradient(90deg,var(--cyan),var(--purple));
+    -webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent;margin-bottom:6px;
+  }
+  .credit-box .crole{font-size:13px;color:var(--muted);margin-bottom:20px}
+  .credit-grid{
+    display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    margin:20px 0;text-align:left;
+  }
+  .credit-grid .cg{
+    background:rgba(30,58,95,.25);border:1px solid var(--border);
+    border-radius:10px;padding:13px 15px;
+  }
+  .credit-grid .cg span{display:block;font-size:10px;letter-spacing:1.3px;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+  .credit-grid .cg strong{font-size:14px;color:#eaf4ff}
+  .latin{
+    font-style:italic;color:var(--amber);font-size:14px;
+    margin-top:18px;padding-top:18px;border-top:1px solid var(--border);
+  }
+
+  /* ---------- TO TOP ---------- */
+  #toTop{
+    position:fixed;right:16px;bottom:20px;
+    width:44px;height:44px;border-radius:12px;
+    background:rgba(15,23,42,.95);color:var(--cyan);
+    border:1px solid rgba(0,212,255,.45);
+    font-size:19px;cursor:pointer;z-index:240;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:.3s;
+    box-shadow:0 0 18px rgba(0,212,255,.2);
+  }
+  #toTop.show{opacity:1;pointer-events:auto}
+  #toTop:hover{background:rgba(0,212,255,.15);transform:translateY(-3px)}
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    border-top:1px solid var(--border);
+    background:#080c16;
+    padding:28px 16px 34px;text-align:center;
+    margin-top:40px;
+  }
+  footer p{font-size:12.5px;color:var(--muted);margin-bottom:7px}
+  footer .f-latin{color:var(--amber);font-style:italic;margin-top:12px;font-size:13px}
+
+  /* ---------- RESPONSIVE ---------- */
+  @media(max-width:640px){
+    body{padding-top:60px}
+    .nav-inner{padding:8px 10px;gap:10px}
+    .nav-brand{font-size:10.5px;letter-spacing:1.1px}
+    .nav-btn{font-size:10.5px;padding:6px 10px}
+    .container{padding:0 12px}
+    .card{padding:16px}
+    .step{padding:14px 14px 14px 54px}
+    .step::before{left:12px;top:14px;width:27px;height:27px;font-size:13px}
+    .quote{padding:13px 15px;font-size:14px}
+    .prompt-box{font-size:12px;padding:14px}
+    .credit-box{padding:18px}
+    #toTop{width:40px;height:40px;right:12px;bottom:14px;font-size:17px}
+  }
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<div id="progressBar"><div id="progressFill"></div></div>
+
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-brand">◆ HERMES + DECODO</div>
+    <div class="nav-links" id="navLinks">
+      <button class="nav-btn active" data-target="home">HOME</button>
+      <button class="nav-btn" data-target="desafio">EL DESAFÍO</button>
+      <button class="nav-btn" data-target="decodo">DECODO</button>
+      <button class="nav-btn" data-target="guia">GUÍA MCP</button>
+      <button class="nav-btn" data-target="casos">CASOS DE USO</button>
+      <button class="nav-btn" data-target="prompts">PROMPTS</button>
+      <button class="nav-btn" data-target="resumen">RESUMEN Y FAQ</button>
+      <button class="nav-btn" data-target="fuentes">FUENTES</button>
+      <button class="nav-btn credits-btn" data-target="creditos">CRÉDITOS</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============================ HOME ============================ -->
+<section id="home" class="section active">
+  <div class="container">
+
+    <div class="svg-host" id="homeSvgHost">
+      <svg id="heroSvg" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid meet"
+           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+           role="img" aria-label="Animación técnica: el agente Hermes obtiene datos sin bloqueos a través de la red de proxies Decodo">
+        <defs>
+          <linearGradient id="bgG" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#070b14">
+              <animate attributeName="stop-color" values="#070b14;#0a1424;#0d1a2e;#070b14" dur="9s" repeatCount="indefinite"/>
+            </stop>
+            <stop offset="50%" stop-color="#0a0e1a">
+              <animate attributeName="stop-color" values="#0a0e1a;#101c30;#0a0e1a" dur="7s" repeatCount="indefinite"/>
+            </stop>
+            <stop offset="100%" stop-color="#0d1a2e">
+              <animate attributeName="stop-color" values="#0d1a2e;#070b14;#13233c;#0d1a2e" dur="11s" repeatCount="indefinite"/>
+            </stop>
+          </linearGradient>
+
+          <radialGradient id="haloCyan">
+            <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="haloGreen">
+            <stop offset="0%" stop-color="#22c55e" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="haloPurple">
+            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="haloAmber">
+            <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
+          </radialGradient>
+
+          <pattern id="gridP" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0H0V40" fill="none" stroke="#1e3a5f" stroke-width="1"/>
+          </pattern>
+
+          <filter id="glow" x="-70%" y="-70%" width="240%" height="240%">
+            <feGaussianBlur stdDeviation="4" result="b"/>
+            <feMerge>
+              <feMergeNode in="b"/>
+              <feMergeNode in="b"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+          <filter id="glowSoft" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="2.2" result="b2"/>
+            <feMerge>
+              <feMergeNode in="b2"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- FONDO -->
+        <rect x="0" y="0" width="800" height="450" fill="url(#bgG)"/>
+        <rect x="0" y="0" width="800" height="450" fill="url(#gridP)" opacity="0.2">
+          <animate attributeName="opacity" values="0.10;0.32;0.10" dur="6s" repeatCount="indefinite"/>
+        </rect>
+
+        <!-- ANILLOS ORBITALES CONCÉNTRICOS -->
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0 400 225" to="360 400 225" dur="42s" repeatCount="indefinite"/>
+          <circle cx="400" cy="225" r="205" fill="none" stroke="#22c55e" stroke-width="1" stroke-dasharray="10 26" opacity="0.28">
+            <animate attributeName="stroke-dasharray" values="10 26;22 14;10 26" dur="12s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="605" cy="225" r="3" fill="#22c55e" filter="url(#glowSoft)"/>
+        </g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="360 400 225" to="0 400 225" dur="30s" repeatCount="indefinite"/>
+          <circle cx="400" cy="225" r="168" fill="none" stroke="#a855f7" stroke-width="1" stroke-dasharray="4 20" opacity="0.34">
+            <animate attributeName="stroke-dasharray" values="4 20;16 8;4 20" dur="8s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="400" cy="57" r="3" fill="#a855f7" filter="url(#glowSoft)"/>
+        </g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0 400 225" to="360 400 225" dur="18s" repeatCount="indefinite"/>
+          <circle cx="400" cy="225" r="126" fill="none" stroke="#00d4ff" stroke-width="1" stroke-dasharray="6 14" opacity="0.3">
+            <animate attributeName="stroke-dasharray" values="6 14;18 10;6 14" dur="7s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <!-- TÍTULO SVG -->
+        <text x="36" y="52" font-family="Segoe UI, system-ui, sans-serif" font-size="27" font-weight="800"
+              letter-spacing="2" fill="#00d4ff" filter="url(#glow)">
+          HERMES + DECODO
+          <animate attributeName="fill" values="#00d4ff;#22c55e;#f59e0b;#a855f7;#00d4ff" dur="8s" repeatCount="indefinite"/>
+        </text>
+        <text x="36" y="76" font-family="Segoe UI, system-ui, sans-serif" font-size="12"
+              letter-spacing="1.7" fill="#8aa6bf">
+          NAVEGACIÓN WEB SIN BLOQUEOS PARA AGENTES IA
+          <animate attributeName="opacity" values="0.4;1;0.4" dur="3.2s" repeatCount="indefinite"/>
+        </text>
+
+        <!-- BADGE LIVE -->
+        <g transform="translate(688,30)">
+          <rect x="0" y="0" width="78" height="26" rx="13" fill="#0f172a" stroke="#ef4444" stroke-width="1.2">
+            <animate attributeName="stroke-opacity" values="0.35;1;0.35" dur="2.5s" repeatCount="indefinite"/>
+          </rect>
+          <circle cx="16" cy="13" r="4" fill="#ef4444">
+            <animate attributeName="r" values="3;5.4;3" dur="1.4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="1;0.15;1" dur="1.4s" repeatCount="indefinite"/>
+          </circle>
+          <text x="30" y="17.5" font-family="Segoe UI, system-ui, sans-serif" font-size="11" font-weight="700"
+                fill="#ef4444" letter-spacing="1.6">LIVE</text>
+        </g>
+
+        <!-- RUTAS DE FLUJO -->
+        <path id="flowA" d="M156 128 C250 128 300 178 356 206" fill="none" stroke="#00d4ff"
+              stroke-width="1.7" stroke-dasharray="7 9" opacity="0.42">
+          <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.2s" repeatCount="indefinite"/>
+        </path>
+        <path id="flowB" d="M156 322 C250 322 300 272 356 244" fill="none" stroke="#a855f7"
+              stroke-width="1.7" stroke-dasharray="7 9" opacity="0.42">
+          <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="1.5s" repeatCount="indefinite"/>
+        </path>
+        <path id="flowC" d="M452 225 C520 188 580 262 648 225" fill="none" stroke="#22c55e"
+              stroke-width="1.9" stroke-dasharray="8 10" opacity="0.5">
+          <animate attributeName="stroke-dashoffset" from="0" to="-36" dur="1s" repeatCount="indefinite"/>
+        </path>
+
+        <!-- CAMINOS BLOQUEADOS (ANTES) -->
+        <g opacity="0.85">
+          <line x1="60" y1="100" x2="18" y2="58" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4">
+            <animate attributeName="opacity" values="0.15;1;0.15" dur="2.5s" repeatCount="indefinite"/>
+          </line>
+          <g stroke="#ef4444" stroke-width="2.4" stroke-linecap="round">
+            <line x1="12" y1="52" x2="24" y2="64"/>
+            <line x1="24" y1="52" x2="12" y2="64"/>
+          </g>
+          <line x1="60" y1="350" x2="18" y2="392" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 4">
+            <animate attributeName="opacity" values="0.15;1;0.15" dur="3.1s" repeatCount="indefinite"/>
+          </line>
+          <g stroke="#ef4444" stroke-width="2.4" stroke-linecap="round">
+            <line x1="12" y1="386" x2="24" y2="398"/>
+            <line x1="24" y1="386" x2="12" y2="398"/>
+          </g>
+        </g>
+
+        <!-- NODO SERVIDOR US -->
+        <g>
+          <animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 0;0 3;0 0" dur="5s" repeatCount="indefinite"/>
+          <rect x="60" y="100" width="96" height="56" rx="10" fill="#0f172a" stroke="#1e3a5f" stroke-width="1.5"/>
+          <text x="108" y="123" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif"
+                font-size="10" fill="#8aa6bf" letter-spacing="1.2">SERVIDOR</text>
+          <text x="108" y="142" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif"
+                font-size="13" font-weight="700" fill="#00d4ff">AMZ · US</text>
+          <circle cx="108" cy="128" r="30" fill="url(#haloCyan)" opacity="0.5">
+            <animate attributeName="r" values="26;36;26" dur="3.6s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.2;0.55;0.2" dur="3.6s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <!-- NODO SERVIDOR MX -->
+        <g>
+          <animateTransform attributeName="transform" type="translate" values="0 0;0 3;0 0;0 -3;0 0" dur="6.4s" repeatCount="indefinite"/>
+          <rect x="60" y="294" width="96" height="56" rx="10" fill="#0f172a" stroke="#1e3a5f" stroke-width="1.5"/>
+          <text x="108" y="317" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif"
+                font-size="10" fill="#8aa6bf" letter-spacing="1.2">SERVIDOR</text>
+          <text x="108" y="336" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif"
+                font-size="13" font-weight="700" fill="#a855f7">AMZ · MX</text>
+          <circle cx="108" cy="322" r="30" fill="url(#haloPurple)" opacity="0.5">
+            <animate attributeName="r" values="26;36;26" dur="4.4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.18;0.5;0.18" dur="4.4s" repeatCount="indefinite"/>
+          </circle>
+        </g>
+
+        <!-- HUB DECODO -->
+        <g>
+          <circle cx="400" cy="225" r="52" fill="url(#haloCyan)">
+            <animate attributeName="r" values="44;62;44" dur="3.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.25;0.75;0.25" dur="3.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="400" cy="225" r="42" fill="#0f172a" stroke="#00d4ff" stroke-width="2" filter="url(#glow)">
+            <animate attributeName="stroke-width" values="1.4;3.2;1.4" dur="2.4s" repeatCount="indefinite"/>
+          </circle>
+          <text x="400" y="221" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif"
+                font-size="13.5" font-weight="800" fill="#00d4ff" letter-spacing="1">DECODO</text>
+          <text x="400" y="238" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif"
+                font-size="8.5" fill="#8aa6bf" letter-spacing="1.6">PROXY HUB</text>
+        </g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="0 400 225" to="360 400 225" dur="13s" repeatCount="indefinite"/>
+          <circle cx="400" cy="225" r="58" fill="none" stroke="#a855f7" stroke-width="1.4"
+                  stroke-dasharray="8 10" opacity="0.65">
+            <animate attributeName="stroke-dasharray" values="8 10;20 6;8 10" dur="6s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="458" cy="225" r="3.2" fill="#a855f7" filter="url(#glowSoft)"/>
+        </g>
+        <g>
+          <animateTransform attributeName="transform" type="rotate" from="360 400 225" to="0 400 225" dur="9s" repeatCount="indefinite"/>
+          <circle cx="400" cy="225" r="68" fill="none" stroke="#00d4ff" stroke-width="1"
+                  stroke-dasharray="3 16" opacity="0.45"/>
+          <circle cx="400" cy="157" r="2.6" fill="#00d4ff" filter="url(#glowSoft)"/>
+        </g>
+
+        <!-- NODO HERMES -->
+        <g>
+          <circle cx="694" cy="225" r="56" fill="url(#haloGreen)">
+            <animate attributeName="r" values="47;63;47" dur="4.2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.28;0.72;0.28" dur="4.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="694" cy="225" r="46" fill="#0f172a" stroke="#22c55e" stroke-width="2" filter="url(#glow)">
+            <animate attributeName="stroke-width" values="1.4;3;1.4" dur="3s" repeatCount="indefinite"/>
+          </circle>
+          <text x="694" y="219" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif"
+                font-size="14.5" font-weight="800" fill="#22c55e" letter-spacing="1.4">HERMES</text>
+          <text x="694" y="236" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif"
+                font-size="8.5" fill="#8aa6bf" letter-spacing="1.4">AGENTE IA</text>
+        </g>
+
+        <!-- PARTÍCULAS: RUTA A -->
+        <g filter="url(#glowSoft)">
+          <circle r="3.2" fill="#00d4ff">
+            <animateMotion dur="2.6s" begin="0s" repeatCount="indefinite"><mpath xlink:href="#flowA"/></animateMotion>
+          </circle>
+          <circle r="2.6" fill="#00d4ff">
+            <animateMotion dur="2.6s" begin="0.9s" repeatCount="indefinite"><mpath xlink:href="#flowA"/></animateMotion>
+          </circle>
+          <circle r="3" fill="#22c55e">
+            <animateMotion dur="2.6s" begin="1.7s" repeatCount="indefinite"><mpath xlink:href="#flowA"/></animateMotion>
+          </circle>
+          <circle r="2.4" fill="#00d4ff">
+            <animateMotion dur="2.6s" begin="2.3s" repeatCount="indefinite"><mpath xlink:href="#flowA"/></animateMotion>
+          </circle>
+        </g>
+
+        <!-- PARTÍCULAS: RUTA B -->
+        <g filter="url(#glowSoft)">
+          <circle r="3.2" fill="#a855f7">
+            <animateMotion dur="3.1s" begin="0.3s" repeatCount="indefinite"><mpath xlink:href="#flowB"/></animateMotion>
+          </circle>
+          <circle r="2.6" fill="#f59e0b">
+            <animateMotion dur="3.1s" begin="1.1s" repeatCount="indefinite"><mpath xlink:href="#flowB"/></animateMotion>
+          </circle>
+          <circle r="3" fill="#a855f7">
+            <animateMotion dur="3.1s" begin="2s" repeatCount="indefinite"><mpath xlink:href="#flowB"/></animateMotion>
+          </circle>
+          <circle r="2.4" fill="#00d4ff">
+            <animateMotion dur="3.1s" begin="2.7s" repeatCount="indefinite"><mpath xlink:href="#flowB"/></animateMotion>
+          </circle>
+        </g>
+
+        <!-- PARTÍCULAS: RUTA C -->
+        <g filter="url(#glowSoft)">
+          <circle r="3.6" fill="#22c55e">
+            <animateMotion dur="2.2s" begin="0s" repeatCount="indefinite"><mpath xlink:href="#flowC"/></animateMotion>
+          </circle>
+          <circle r="2.8" fill="#00d4ff">
+            <animateMotion dur="2.2s" begin="0.5s" repeatCount="indefinite"><mpath xlink:href="#flowC"/></animateMotion>
+          </circle>
+          <circle r="3.2" fill="#22c55e">
+            <animateMotion dur="2.2s" begin="1s" repeatCount="indefinite"><mpath xlink:href="#flowC"/></animateMotion>
+          </circle>
+          <circle r="2.6" fill="#f59e0b">
+            <animateMotion dur="2.2s" begin="1.5s" repeatCount="indefinite"><mpath xlink:href="#flowC"/></animateMotion>
+          </circle>
+          <circle r="3" fill="#00d4ff">
+            <animateMotion dur="2.2s" begin="1.9s" repeatCount="indefinite"><mpath xlink:href="#flowC"/></animateMotion>
+          </circle>
+        </g>
+
+        <!-- GHOST ELEMENTS: RUTA A -->
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0.85;0.85;0" dur="2.6s" begin="0s" repeatCount="indefinite"/>
+          <rect x="-8" y="-6" width="16" height="12" rx="3" fill="none" stroke="#00d4ff" stroke-width="1.5"/>
+          <animateMotion dur="2.6s" begin="0s" repeatCount="indefinite"><mpath xlink:href="#flowA"/></animateMotion>
+        </g>
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0.7;0.7;0" dur="2.6s" begin="1.3s" repeatCount="indefinite"/>
+          <rect x="-8" y="-6" width="16" height="12" rx="3" fill="none" stroke="#22c55e" stroke-width="1.5"/>
+          <animateMotion dur="2.6s" begin="1.3s" repeatCount="indefinite"><mpath xlink:href="#flowA"/></animateMotion>
+        </g>
+
+        <!-- GHOST ELEMENTS: RUTA B -->
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0.8;0.8;0" dur="3.1s" begin="0.4s" repeatCount="indefinite"/>
+          <rect x="-8" y="-6" width="16" height="12" rx="3" fill="none" stroke="#a855f7" stroke-width="1.5"/>
+          <animateMotion dur="3.1s" begin="0.4s" repeatCount="indefinite"><mpath xlink:href="#flowB"/></animateMotion>
+        </g>
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0.7;0.7;0" dur="3.1s" begin="1.9s" repeatCount="indefinite"/>
+          <rect x="-8" y="-6" width="16" height="12" rx="3" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+          <animateMotion dur="3.1s" begin="1.9s" repeatCount="indefinite"><mpath xlink:href="#flowB"/></animateMotion>
+        </g>
+
+        <!-- GHOST ELEMENTS: RUTA C -->
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0.9;0.9;0" dur="2.2s" begin="0.2s" repeatCount="indefinite"/>
+          <rect x="-9" y="-6.5" width="18" height="13" rx="3" fill="none" stroke="#22c55e" stroke-width="1.6"/>
+          <animateMotion dur="2.2s" begin="0.2s" repeatCount="indefinite"><mpath xlink:href="#flowC"/></animateMotion>
+        </g>
+        <g opacity="0">
+          <animate attributeName="opacity" values="0;0.8;0.8;0" dur="2.2s" begin="1.2s" repeatCount="indefinite"/>
+          <rect x="-9" y="-6.5" width="18" height="13" rx="3" fill="none" stroke="#00d4ff" stroke-width="1.6"/>
+          <animateMotion dur="2.2s" begin="1.2s" repeatCount="indefinite"><mpath xlink:href="#flowC"/></animateMotion>
+        </g>
+
+        <!-- EXPLOSIÓN RADIAL EN EL HUB -->
+        <g transform="translate(400,225)">
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;0.9;0.4;0" dur="3.4s" repeatCount="indefinite"/>
+            <g>
+              <animateTransform attributeName="transform" type="scale" values="0.4;2.1" dur="3.4s" repeatCount="indefinite"/>
+              <line x1="0" y1="-44" x2="0" y2="-58" stroke="#00d4ff" stroke-width="2"/>
+              <line x1="0" y1="44" x2="0" y2="58" stroke="#00d4ff" stroke-width="2"/>
+              <line x1="-44" y1="0" x2="-58" y2="0" stroke="#00d4ff" stroke-width="2"/>
+              <line x1="44" y1="0" x2="58" y2="0" stroke="#00d4ff" stroke-width="2"/>
+              <line x1="-31" y1="-31" x2="-42" y2="-42" stroke="#a855f7" stroke-width="1.8"/>
+              <line x1="31" y1="31" x2="42" y2="42" stroke="#a855f7" stroke-width="1.8"/>
+              <line x1="31" y1="-31" x2="42" y2="-42" stroke="#22c55e" stroke-width="1.8"/>
+              <line x1="-31" y1="31" x2="-42" y2="42" stroke="#22c55e" stroke-width="1.8"/>
+            </g>
+          </g>
+        </g>
+
+        <!-- EXPLOSIÓN RADIAL EN HERMES -->
+        <g transform="translate(694,225)">
+          <g opacity="0">
+            <animate attributeName="opacity" values="0;0;0;0.95;0.5;0" dur="4s" repeatCount="indefinite"/>
+            <g>
+              <animateTransform attributeName="transform" type="scale" values="0.35;2.4" dur="4s" repeatCount="indefinite"/>
+              <line x1="0" y1="-48" x2="0" y2="-66" stroke="#22c55e" stroke-width="2.2"/>
+              <line x1="0" y1="48" x2="0" y2="66" stroke="#22c55e" stroke-width="2.2"/>
+              <line x1="-48" y1="0" x2="-66" y2="0" stroke="#22c55e" stroke-width="2.2"/>
+              <line x1="48" y1="0" x2="66" y2="0" stroke="#22c55e" stroke-width="2.2"/>
+              <line x1="-34" y1="-34" x2="-47" y2="-47" stroke="#00d4ff" stroke-width="1.8"/>
+              <line x1="34" y1="34" x2="47" y2="47" stroke="#00d4ff" stroke-width="1.8"/>
+              <line x1="34" y1="-34" x2="47" y2="-47" stroke="#f59e0b" stroke-width="1.8"/>
+              <line x1="-34" y1="34" x2="-47" y2="47" stroke="#f59e0b" stroke-width="1.8"/>
+            </g>
+          </g>
+        </g>
+
+        <!-- ETIQUETAS DE ESTADO ALTERNAS -->
+        <g font-family="Segoe UI, system-ui, sans-serif" font-size="10.5" letter-spacing="1.4">
+          <text x="36" y="418" fill="#22c55e" opacity="0">
+            <animate attributeName="opacity" values="1;1;0;0;0;0" dur="9s" repeatCount="indefinite"/>
+            ▸ ROTANDO IDENTIDAD · PROXY
+          </text>
+          <text x="36" y="418" fill="#00d4ff" opacity="0">
+            <animate attributeName="opacity" values="0;0;1;1;0;0" dur="9s" repeatCount="indefinite"/>
+            ▸ EXTRAYENDO DATOS · SCRAPING API
+          </text>
+          <text x="36" y="418" fill="#f59e0b" opacity="0">
+            <animate attributeName="opacity" values="0;0;0;0;1;0" dur="9s" repeatCount="indefinite"/>
+            ▸ ENTREGANDO DATOS ESTRUCTURADOS
+          </text>
+        </g>
+
+        <!-- FIRMA -->
+        <text x="764" y="418" text-anchor="end" font-family="Segoe UI, system-ui, sans-serif"
+              font-size="11" fill="#a855f7" letter-spacing="1.5">
+          Rubén Sbarsky
+          <animate attributeName="opacity" values="0.3;1;0.3" dur="4.5s" repeatCount="indefinite"/>
+        </text>
+
+        <!-- FLASH CULMINANTE -->
+        <text x="400" y="392" text-anchor="middle" font-family="Segoe UI, system-ui, sans-serif"
+              font-size="30" font-weight="900" letter-spacing="4" fill="#22c55e"
+              filter="url(#glow)" opacity="0">
+          <animate attributeName="opacity" values="0;0;0;0;0.95;0.95;0;0" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="font-size" values="26;26;26;26;33;33;26;26" dur="9s" repeatCount="indefinite"/>
+          ¡SIN BLOQUEOS!
+        </text>
+      </svg>
+    </div>
+
+    <div class="home-hero">
+      <span class="badge">TUTORIAL TÉCNICO · ARQUITECTURA DE IA · MODEL CONTEXT PROTOCOL</span>
+      <h1>Hermes y Decodo: Navegación Web Sin Bloqueos para Agentes IA</h1>
+      <p class="subtitle">El pasaporte digital que convierte un agente aislado en un operador global</p>
+      <p class="lede">
+        Cómo dotar a un agente de IA personal —alojado en un VPS propio— de acceso real, verificado y
+        actualizado a la web, superando bloqueos geográficos, CAPTCHA y limitaciones de IP mediante
+        proxies de alta rotación, lógica de scraping avanzada y una integración nativa por MCP.
+      </p>
+
+      <blockquote class="quote">
+        "Si no puedes explicarlo de forma sencilla, es que no lo entiendes lo suficientemente bien."
+      </blockquote>
+
+      <div class="metrics">
+        <div class="metric g">
+          <span class="val">41,67 s</span>
+          <span class="lbl">10 productos extraídos</span>
+        </div>
+        <div class="metric">
+          <span class="val">4 s</span>
+          <span class="lbl">Consulta Amazon México</span>
+        </div>
+        <div class="metric a">
+          <span class="val">+800 %</span>
+          <span class="lbl">Incremento de throughput</span>
+        </div>
+        <div class="metric p">
+          <span class="val">&lt; 45 s</span>
+          <span class="lbl">Frente a 6 min fallidos</span>
+        </div>
+      </div>
+
+      <div class="meta-row">
+        <span class="chip">📅 <strong>21/09/2026</strong></span>
+        <span class="chip">🕐 <strong>09:59:16</strong></span>
+        <span class="chip">👨‍💻 <strong>Rubén Sbarsky</strong></span>
+        <span class="chip">🏷️ <strong>Consultor Senior en Arquitectura de IA y Docencia Técnica</strong></span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================ EL DESAFÍO ============================ -->
+<section id="desafio" class="section">
+  <div class="container">
+    <h2 class="sec-title"><span class="num">01</span>El Desafío de la IA en un Internet Cerrado</h2>
+    <p class="sec-sub">Por qué el razonamiento sin acceso a datos reales es una ventaja que se desvanece</p>
+
+    <p>
+      En el panorama actual de la inteligencia artificial, el valor de un agente no reside solo en su
+      capacidad de razonamiento, sino en su <strong>acceso a información veraz y actualizada</strong>.
+      Un agente con "ojos" en tiempo real posee una ventaja competitiva crítica; sin ellos, su utilidad
+      se limita a procesar datos históricos y estáticos. Hermes, un agente de IA personal diseñado para
+      residir en un servidor propio (VPS), representa un salto hacia la soberanía tecnológica, pero se
+      enfrenta a un obstáculo sistémico: un Internet cada vez más restringido por bloqueos geográficos,
+      desafíos de CAPTCHA y limitaciones de IP.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--red)">◆ Agente sin "ojos"</h3>
+        <ul class="mini-list">
+          <li>Procesa únicamente datos históricos y estáticos.</li>
+          <li>No puede validar el estado real del mercado.</li>
+          <li>Su utilidad se degrada rápidamente con el tiempo.</li>
+          <li>Decisiones basadas en información desactualizada.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0;color:var(--green)">◆ Agente con "ojos" en tiempo real</h3>
+        <ul class="mini-list">
+          <li>Acceso a información veraz y actualizada.</li>
+          <li>Ventaja competitiva crítica y sostenida.</li>
+          <li>Capacidad de monitorización de mercado real.</li>
+          <li>Decisiones informadas sobre el estado actual.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>La analogía del empleado brillante</h3>
+    <div class="callout example">
+      <span class="ttl">Ejemplo</span>
+      <p>
+        Podemos comparar esta situación con un <strong>empleado brillante encerrado en una oficina sin
+        teléfono ni conexión exterior</strong>: su intelecto es excepcional, pero su capacidad para tomar
+        decisiones informadas sobre el mercado actual es nula.
+      </p>
+    </div>
+
+    <div class="callout info">
+      <span class="ttl">Info</span>
+      <p>
+        Superar estas barreras técnicas <strong>no es un simple ajuste de configuración</strong>, sino el
+        cimiento estratégico para dominar la automatización de datos y transformar la IA en una
+        herramienta operativa de alto impacto.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ DECODO ============================ -->
+<section id="decodo" class="section">
+  <div class="container">
+    <h2 class="sec-title"><span class="num">02</span>¿Qué es Decodo? El Pasaporte Digital para tu Agente</h2>
+    <p class="sec-sub">Infraestructura de intermediación que transforma una barrera técnica en ventaja operativa</p>
+
+    <p>
+      Para que un agente de IA escale de un entorno de laboratorio a uno de producción, requiere
+      herramientas de intermediación robustas. <strong>Decodo no es solo un servicio de extracción</strong>;
+      es una infraestructura que transforma una barrera técnica en una ventaja operativa mediante la
+      combinación de <strong>proxies de alta rotación</strong> y <strong>lógica de scraping avanzada</strong>.
+    </p>
+
+    <h3>Los tres pilares fundamentales</h3>
+
+    <div class="card pillar p1">
+      <span class="pnum">1</span>
+      <h3 style="margin-top:0">El Intermediario (Proxy)</h3>
+      <p style="margin-bottom:0">
+        Oculta la identidad del servidor y permite simular ubicaciones geográficas específicas.
+      </p>
+    </div>
+
+    <div class="card pillar p2">
+      <span class="pnum">2</span>
+      <h3 style="margin-top:0">El Analista (Scraping)</h3>
+      <p style="margin-bottom:0">
+        Procesa el código fuente complejo para entregar datos limpios y estructurados.
+      </p>
+    </div>
+
+    <div class="card pillar p3">
+      <span class="pnum">3</span>
+      <h3 style="margin-top:0">Target Templates</h3>
+      <p style="margin-bottom:0">
+        A diferencia de los servicios genéricos, Decodo ofrece plantillas preconfiguradas para sitios
+        críticos como Amazon, eliminando la necesidad de programar lógica de extracción manual para
+        cada plataforma.
+      </p>
+    </div>
+
+    <h3>Comparativa de navegación: rendimiento y fiabilidad</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Característica</th>
+            <th>Navegación tradicional (agente solo)</th>
+            <th>Navegación con Decodo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Velocidad de respuesta</td>
+            <td class="td-bad">Fallos tras &gt;6 minutos de intentos</td>
+            <td class="td-good">Éxito en 41,67 segundos</td>
+          </tr>
+          <tr>
+            <td>Precisión de datos</td>
+            <td class="td-bad">Datos erróneos o bloqueos por IP</td>
+            <td class="td-good">Información fidedigna y estructurada</td>
+          </tr>
+          <tr>
+            <td>Geolocalización</td>
+            <td class="td-bad">Estática (IP del servidor)</td>
+            <td class="td-good">Dinámica (EE. UU., México, etc.)</td>
+          </tr>
+          <tr>
+            <td>Escalabilidad</td>
+            <td class="td-bad">Bloqueo inmediato tras peticiones masivas</td>
+            <td class="td-good">Alta disponibilidad mediante rotación</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <span class="ttl">Info</span>
+      <p>
+        Entender la potencia de estas herramientas es el preámbulo necesario para su integración técnica
+        mediante protocolos de última generación.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ GUÍA MCP ============================ -->
+<section id="guia" class="section">
+  <div class="container">
+    <h2 class="sec-title"><span class="num">03</span>Guía Paso a Paso: Conectando Hermes con el Mundo Real</h2>
+    <p class="sec-sub">Model Context Protocol: la interfaz estandarizada entre el LLM y las herramientas externas</p>
+
+    <p>
+      La verdadera revolución en la arquitectura de agentes modernos es el <strong>Model Context
+      Protocol (MCP)</strong>. Más que un simple puente, el MCP actúa como una interfaz estandarizada que
+      permite a los Modelos de Lenguaje (LLMs) utilizar herramientas externas de forma nativa. Esto
+      permite una <strong>arquitectura desacoplada</strong> donde la lógica del agente es independiente de
+      la capa de extracción de datos, facilitando el mantenimiento y la seguridad.
+    </p>
+
+    <h3>Proceso de integración estratégica</h3>
+
+    <div class="steps">
+      <div class="step">
+        <h4>Registro en Decodo</h4>
+        <p>
+          Inicie sesión en el dashboard para acceder a los servicios de <strong>Scraping API</strong>
+          (disponible en modalidad gratuita para pruebas de concepto).
+        </p>
+      </div>
+      <div class="step">
+        <h4>Obtención de credenciales</h4>
+        <p>
+          Localice el <strong>"Basic Authentication Token"</strong>. Este es su pasaporte de seguridad;
+          debe ser tratado como una llave maestra.
+        </p>
+      </div>
+      <div class="step">
+        <h4>Configuración del servidor MCP (Pro-Tip)</h4>
+        <p>
+          En lugar de configurar manualmente el código, aproveche la capacidad de visión de Hermes. Tome
+          una <strong>captura de pantalla de la documentación de integración de Decodo en GitHub</strong>
+          y entréguesela al agente junto con el prompt de instalación. Hermes "leerá" las instrucciones y
+          autoconfigurará el servidor MCP.
+        </p>
+      </div>
+      <div class="step">
+        <h4>Gestión de permisos</h4>
+        <p>
+          Al ser un entorno autónomo, Hermes solicitará autorización para ejecutar comandos en la
+          terminal y habilitar las herramientas de Decodo. Es imperativo conceder estos permisos para
+          activar la funcionalidad.
+        </p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <span class="ttl">⚠ Advertencia de arquitectura</span>
+      <p>
+        Bajo ninguna circunstancia exponga su <strong>API Key o Token</strong> en repositorios públicos de
+        GitHub. Para despliegues profesionales, utilice siempre <strong>variables de entorno</strong>.
+      </p>
+    </div>
+
+    <div class="callout info">
+      <span class="ttl">Info</span>
+      <p>
+        La arquitectura desacoplada permite que la lógica del agente evolucione sin tocar la capa de
+        extracción de datos, y viceversa. Esto reduce el riesgo y simplifica el mantenimiento.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CASOS DE USO ============================ -->
+<section id="casos" class="section">
+  <div class="container">
+    <h2 class="sec-title"><span class="num">04</span>Casos de Uso y Demostración de Poder</h2>
+    <p class="sec-sub">Impacto directo en el ROI y en la eficiencia operativa de una organización</p>
+
+    <p>
+      La capacidad de alternar ubicaciones geográficas y la velocidad de extracción impactan
+      directamente en el <strong>ROI (Retorno de Inversión)</strong> y la eficiencia operativa de una
+      organización.
+    </p>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="tab-c1">Caso 1 · Precios transfronterizos</button>
+      <button class="tab" data-tab="tab-c2">Caso 2 · Extracción masiva</button>
+      <button class="tab" data-tab="tab-c3">Análisis "So What?"</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-c1">
+      <div class="card">
+        <h3 style="margin-top:0">Inteligencia de Precios Transfronteriza</h3>
+        <p>
+          Se ejecutó una comparativa del <strong>iPhone 16 Pro</strong> entre <strong>Amazon EE. UU.</strong>
+          y <strong>Amazon México</strong>.
+        </p>
+        <p style="margin-bottom:0">
+          Mientras que un agente estándar falló estrepitosamente tras <strong>6 minutos</strong> de
+          reintentos, el agente potenciado con Decodo obtuvo precios en <strong>moneda local</strong> y
+          <strong>disponibilidad real</strong> en solo <strong>4 segundos</strong> para los datos específicos
+          de México.
+        </p>
+      </div>
+      <div class="metrics">
+        <div class="metric a"><span class="val">6 min</span><span class="lbl">Agente estándar · fallo</span></div>
+        <div class="metric g"><span class="val">4 s</span><span class="lbl">Agente con Decodo · éxito</span></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-c2">
+      <div class="card">
+        <h3 style="margin-top:0">Extracción Masiva de Producto</h3>
+        <p style="margin-bottom:0">
+          Se solicitó la extracción de <strong>10 productos simultáneamente</strong> con generación de
+          tabla comparativa. El sistema procesó la solicitud completa en <strong>41,67 segundos</strong>.
+        </p>
+      </div>
+      <div class="metrics">
+        <div class="metric"><span class="val">10</span><span class="lbl">Productos simultáneos</span></div>
+        <div class="metric g"><span class="val">41,67 s</span><span class="lbl">Tiempo total de proceso</span></div>
+        <div class="metric p"><span class="val">Tabla</span><span class="lbl">Comparativa generada</span></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-c3">
+      <div class="callout example">
+        <span class="ttl">Análisis "So What?"</span>
+        <p>
+          Reducir la latencia de <strong>6 minutos (con fallo)</strong> a <strong>menos de 45 segundos
+          (con éxito)</strong> representa un incremento del <strong>800 % en el throughput</strong> o
+          capacidad de procesamiento del agente.
+        </p>
+        <p style="margin-bottom:0">
+          Para una empresa, esto significa pasar de <strong>datos anecdóticos</strong> a una
+          <strong>monitorización de mercado en tiempo real escalable</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ PROMPTS ============================ -->
+<section id="prompts" class="section">
+  <div class="container">
+    <h2 class="sec-title"><span class="num">05</span>Prompts y Comandos para el Éxito</h2>
+    <p class="sec-sub">La precisión en el "prompting" determina qué herramienta del MCP se invoca</p>
+
+    <p>
+      La precisión en el <strong>"prompting"</strong> es vital para que el agente identifique qué
+      herramienta del MCP debe invocar. Si la instrucción es ambigua, el agente podría intentar una
+      <strong>navegación directa</strong> y ser detectado por los sistemas anti-bot.
+    </p>
+
+    <h3>Prompt Maestro Recomendado</h3>
+    <div class="prompt-box">
+      "Usando el <span class="k">MCP de Decodo Amazon Product</span>, accede a amazon.com y extrae el
+      precio del <span class="k">[Producto X]</span> simulando un usuario desde
+      <span class="k">[País Y]</span>. Genera una tabla comparativa con los resultados."
+    </div>
+
+    <div class="callout warn">
+      <span class="ttl">Consejo del consultor</span>
+      <p>
+        Para entornos de producción donde el volumen de peticiones es elevado, el escalado al plan de
+        <strong>99 $/mes</strong> de Decodo es la ruta recomendada. Este nivel elimina las restricciones
+        de velocidad, permitiendo una mayor cantidad de <strong>"requests per second"</strong> y
+        garantizando que el agente nunca se encuentre con un cuello de botella en la captura de datos.
+      </p>
+    </div>
+
+    <div class="callout error">
+      <span class="ttl">Error crítico a evitar</span>
+      <p>
+        No mencionar explícitamente la herramienta de Decodo en el prompt puede llevar a
+        <strong>fallos de conexión</strong>: el agente intentará una navegación directa y será bloqueado.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ RESUMEN Y FAQ ============================ -->
+<section id="resumen" class="section">
+  <div class="container">
+    <h2 class="sec-title"><span class="num">06</span>Resumen, Buenas Prácticas y FAQ</h2>
+    <p class="sec-sub">De sistema de chat aislado a agente operativo de alcance global</p>
+
+    <p>
+      La implementación de Decodo transforma a Hermes de un <strong>sistema de chat aislado</strong> a un
+      <strong>agente operativo de alcance global</strong>.
+    </p>
+
+    <h3>Conceptos clave para el arquitecto de IA</h3>
+    <div class="grid">
+      <div class="card">
+        <h4 style="margin-top:0;color:var(--cyan)">MCP (Model Context Protocol)</h4>
+        <p style="margin-bottom:0;font-size:14px;color:var(--muted)">
+          Interfaz estándar para el uso de herramientas por parte de la IA.
+        </p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;color:var(--green)">Token de Autenticación</h4>
+        <p style="margin-bottom:0;font-size:14px;color:var(--muted)">
+          Credencial de acceso seguro a la API.
+        </p>
+      </div>
+      <div class="card">
+        <h4 style="margin-top:0;color:var(--purple)">Target Templates</h4>
+        <p style="margin-bottom:0;font-size:14px;color:var(--muted)">
+          Configuraciones de scraping optimizadas para sitios específicos.
+        </p>
+      </div>
+    </div>
+
+    <h3>Errores críticos a evitar</h3>
+    <div class="callout error">
+      <span class="ttl">Error</span>
+      <p>
+        <strong>Denegar permisos:</strong> el agente necesita acceso a la terminal para levantar el
+        servidor MCP.
+      </p>
+    </div>
+    <div class="callout error">
+      <span class="ttl">Error</span>
+      <p>
+        <strong>Prompts genéricos:</strong> no mencionar explícitamente la herramienta de Decodo puede
+        llevar a fallos de conexión.
+      </p>
+    </div>
+
+    <h3>Preguntas frecuentes</h3>
+
+    <div class="acc">
+      <button class="acc-head">¿Es difícil de configurar?<span class="ico">+</span></button>
+      <div class="acc-body">
+        <p>
+          No, utilizando la técnica de <strong>"screenshot prompting"</strong>, el agente realiza el
+          <strong>90 % del trabajo técnico</strong>.
+        </p>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">¿Es gratuito?<span class="ico">+</span></button>
+      <div class="acc-body">
+        <p>
+          Existe una <strong>capa gratuita</strong> ideal para validación; el escalado a producción
+          requiere <strong>planes de pago</strong> para mayor throughput.
+        </p>
+      </div>
+    </div>
+
+    <div class="acc">
+      <button class="acc-head">¿Qué pasa si Amazon cambia su web?<span class="ico">+</span></button>
+      <div class="acc-body">
+        <p>
+          Decodo actualiza sus <strong>Target Templates automáticamente</strong>, asegurando la
+          resiliencia del sistema sin intervención del usuario.
+        </p>
+      </div>
+    </div>
+
+    <h3>Glosario técnico</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Término</th><th>Definición</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Agente Autónomo</td>
+            <td>Sistema de IA que puede planificar y ejecutar tareas con mínima intervención humana.</td>
+          </tr>
+          <tr>
+            <td>Throughput</td>
+            <td>Cantidad de trabajo o datos procesados en un tiempo determinado.</td>
+          </tr>
+          <tr>
+            <td>Decoupled Architecture</td>
+            <td>Diseño donde los componentes (IA y extracción) funcionan de forma independiente.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FUENTES ============================ -->
+<section id="fuentes" class="section">
+  <div class="container">
+    <h2 class="sec-title"><span class="num">07</span>Fuentes y Recursos Adicionales</h2>
+    <p class="sec-sub">Referencias originales conservadas íntegramente</p>
+
+    <div class="src-card">
+      <span class="src-tag">Fuente · Vídeo</span>
+      <span class="src-name">HERMES + DECODO: MI AGENTE DE IA YA SACA DATOS REALES SIN BLOQUEOS</span>
+      <a class="src-url" href="https://youtube.com/watch?v=ZNMilKaZIPo&amp;is=3nimeWJjh8TtowJx" target="_blank" rel="noopener">
+        https://youtube.com/watch?v=ZNMilKaZIPo&amp;is=3nimeWJjh8TtowJx
+      </a>
+    </div>
+
+    <div class="src-card">
+      <span class="src-tag">Fuente · Plataforma</span>
+      <span class="src-name">DECODO</span>
+      <a class="src-url" href="https://decodo.com/deals/scrapingapi-kilianparragia?irclickid=0yJ0rNTBoxyZTOi2VtVj0ST2UkrzpkRClQtj1Q0&amp;mediapartnerid=7557643&amp;utm_source=Kilian%20Parraga&amp;utm_medium=affiliate&amp;utm_campaign=17480&amp;irgwc=1&amp;afsrc=1" target="_blank" rel="noopener">
+        https://decodo.com/deals/scrapingapi-kilianparragia?irclickid=0yJ0rNTBoxyZTOi2VtVj0ST2UkrzpkRClQtj1Q0&amp;mediapartnerid=7557643&amp;utm_source=Kilian%20Parraga&amp;utm_medium=affiliate&amp;utm_campaign=17480&amp;irgwc=1&amp;afsrc=1
+      </a>
+    </div>
+
+    <div class="callout info">
+      <span class="ttl">Info</span>
+      <p>
+        Los enlaces anteriores se conservan tal como aparecen en el documento original. No se ha
+        añadido ni modificado ninguna referencia externa.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ CRÉDITOS ============================ -->
+<section id="creditos" class="section">
+  <div class="container">
+    <h2 class="sec-title"><span class="num">08</span>Créditos</h2>
+    <p class="sec-sub">Información del tutorial y de su autor</p>
+
+    <div class="svg-host" id="credSvgHost"></div>
+
+    <div class="credit-box">
+      <div class="cname">Hermes y Decodo: Navegación Web Sin Bloqueos para Agentes IA</div>
+      <div class="crole">Tutorial técnico · Arquitectura de IA · Model Context Protocol</div>
+
+      <div class="credit-grid">
+        <div class="cg"><span>Autor</span><strong>Rubén Sbarsky</strong></div>
+        <div class="cg"><span>Rol</span><strong>Consultor Senior en Arquitectura de IA y Docencia Técnica</strong></div>
+        <div class="cg"><span>Fecha</span><strong>21/09/2026</strong></div>
+        <div class="cg"><span>Hora</span><strong>09:59:16</strong></div>
+      </div>
+
+      <p style="font-size:13.5px;color:var(--muted);margin-bottom:0">
+        📚 Material elaborado con fines exclusivamente <strong>educativos y de divulgación</strong>.
+      </p>
+
+      <div class="latin">Fiat iustitia, ruat caelum.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<button id="toTop" aria-label="Volver arriba">↑</button>
+
+<footer>
+  <p>📚 Tutorial solo con fines Educativos y Divulgación</p>
+  <p>👨‍💻 Créditos: Rubén Sbarsky</p>
+  <p>📅 FECHA: 21/09/2026 &nbsp;·&nbsp; Hora: 09:59:16</p>
+  <p class="f-latin">Fiat iustitia, ruat caelum.</p>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var sections   = Array.prototype.slice.call(document.querySelectorAll('.section'));
+  var navBtns    = Array.prototype.slice.call(document.querySelectorAll('.nav-btn'));
+  var navLinks   = document.getElementById('navLinks');
+  var progressFill = document.getElementById('progressFill');
+  var toTop      = document.getElementById('toTop');
+  var heroSvg    = document.getElementById('heroSvg');
+  var homeHost   = document.getElementById('homeSvgHost');
+  var credHost   = document.getElementById('credSvgHost');
+
+  /* ---------- MOVIMIENTO REDUCIDO ---------- */
+  var reduceMotion = window.matchMedia &&
+                     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reduceMotion && heroSvg && typeof heroSvg.pauseAnimations === 'function') {
+    try { heroSvg.pauseAnimations(); } catch(e){}
+  }
+
+  /* ---------- NAVEGACIÓN SPA ---------- */
+  function goTo(id){
+    sections.forEach(function(s){
+      s.classList.toggle('active', s.id === id);
+    });
+
+    navBtns.forEach(function(b){
+      b.classList.toggle('active', b.dataset.target === id);
+    });
+
+    /* Reubicar el SVG único (misma instancia, misma animación) */
+    if (heroSvg){
+      if (id === 'home' && heroSvg.parentNode !== homeHost){
+        homeHost.appendChild(heroSvg);
+      } else if (id === 'creditos' && heroSvg.parentNode !== credHost){
+        credHost.appendChild(heroSvg);
+      }
+      /* Reiniciar la línea de tiempo SMIL */
+      if (typeof heroSvg.setCurrentTime === 'function'){
+        try { heroSvg.setCurrentTime(0); } catch(e){}
+      }
+      if (reduceMotion && typeof heroSvg.pauseAnimations === 'function'){
+        try { heroSvg.pauseAnimations(); } catch(e){}
+      }
+    }
+
+    /* Scroll al inicio de la nueva sección */
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    updateProgress();
+  }
+
+  navBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      goTo(btn.dataset.target);
+      var active = document.querySelector('.nav-btn.active');
+      if (active && active.scrollIntoView){
+        active.scrollIntoView({ block:'nearest', inline:'center', behavior:'smooth' });
+      }
+    });
+  });
+
+  /* ---------- BARRA DE PROGRESO ---------- */
+  function updateProgress(){
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? (window.scrollY / h) * 100 : 0;
+    if (p < 0) p = 0;
+    if (p > 100) p = 100;
+    progressFill.style.width = p + '%';
+  }
+
+  /* ---------- BOTÓN VOLVER ARRIBA ---------- */
+  function updateToTop(){
+    if (window.scrollY > 320){
+      toTop.classList.add('show');
+    } else {
+      toTop.classList.remove('show');
+    }
+  }
+
+  toTop.addEventListener('click', function(){
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  window.addEventListener('scroll', function(){
+    updateProgress();
+    updateToTop();
+  }, { passive: true });
+
+  window.addEventListener('resize', updateProgress);
+
+  /* ---------- ACORDEONES ---------- */
+  Array.prototype.slice.call(document.querySelectorAll('.acc-head')).forEach(function(head){
+    head.addEventListener('click', function(){
+      var acc = head.parentNode;
+      acc.classList.toggle('open');
+    });
+  });
+
+  /* ---------- TABS ---------- */
+  Array.prototype.slice.call(document.querySelectorAll('.tab')).forEach(function(tab){
+    tab.addEventListener('click', function(){
+      var group = tab.closest('.tabs');
+      var parent = group.parentNode;
+      var targetId = tab.dataset.tab;
+
+      Array.prototype.slice.call(group.querySelectorAll('.tab')).forEach(function(t){
+        t.classList.toggle('active', t === tab);
+      });
+
+      Array.prototype.slice.call(parent.querySelectorAll('.tab-panel')).forEach(function(p){
+        p.classList.toggle('active', p.id === targetId);
+      });
+    });
+  });
+
+  /* ---------- INICIALIZACIÓN ---------- */
+  updateProgress();
+  updateToTop();
+
+})();
+</script>
+
+</body>
+</html>
